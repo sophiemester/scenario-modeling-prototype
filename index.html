@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scenario Modeling Dashboard - Maybern</title>
+  <title>Scenario Modeling Dashboard v2 - Maybern</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -341,121 +341,7 @@
     }
 
     /* Stale data indicator */
-    .stale-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 500;
-      background: #FEF3C7;
-      color: #92400E;
-      white-space: nowrap;
-    }
-    .stale-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #F59E0B;
-      animation: stalePulse 2s infinite;
-    }
-    @keyframes stalePulse {
-      0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
-    }
-
-    /* Scenario Output Panel (slide-over) */
-    .scenario-panel-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.3);
-      z-index: 90;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-    .scenario-panel-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .scenario-panel {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 560px;
-      height: 100vh;
-      background: white;
-      box-shadow: -8px 0 32px rgba(0,0,0,0.12);
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      z-index: 91;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    .scenario-panel-overlay.open .scenario-panel {
-      transform: translateX(0);
-    }
-    .stale-banner {
-      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-      border: 1px solid #FDE68A;
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
-    .rerun-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      background: #175CD3;
-      color: white;
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .rerun-btn:hover {
-      background: #1849A9;
-    }
-    .rerun-btn.running {
-      background: #6366F1;
-      pointer-events: none;
-    }
-    .rerun-btn .spinner {
-      display: none;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    .rerun-btn.running .spinner {
-      display: block;
-    }
-    .rerun-btn.running .play-icon {
-      display: none;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .run-history-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      border-radius: 8px;
-      transition: background 0.1s;
-    }
-    .run-history-item:hover {
-      background: #F9FAFB;
-    }
-    .run-history-item.current {
-      background: #EFF6FF;
-      border: 1px solid #D1E9FF;
     }
   </style>
 </head>
@@ -677,7 +563,6 @@
                 <div>
                   <div class="flex items-center gap-2">
                     <h3 class="text-base font-semibold text-gray-900">Maybern Fund I</h3>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">Active</span>
                   </div>
                   <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 28, 2026 · Projection: Jan 2026 – Dec 2035</p>
                 </div>
@@ -719,14 +604,13 @@
               <!-- Scenario rows -->
               <div class="space-y-2">
                 <!-- Base Case -->
-                <a href="javascript:void(0)" onclick="openScenarioPanel('base-case', 'Base Case', '#175CD3', true)" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#175CD3] hover:bg-[#F8FAFF] transition-all group cursor-pointer">
+                <a href="scenario-output-v2.html" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#175CD3] hover:bg-[#F8FAFF] transition-all group cursor-pointer">
                   <div class="flex items-center gap-3">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#175CD3]"></span>
                     <div>
                       <div class="flex items-center gap-2">
                         <p class="text-sm font-medium text-gray-900">Base Case</p>
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">Default</span>
-                        <span class="stale-badge"><span class="stale-dot"></span> Data changed</span>
                       </div>
                       <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 28, 2026</p>
                     </div>
@@ -755,13 +639,12 @@
                 </a>
 
                 <!-- Best Case -->
-                <a href="javascript:void(0)" onclick="openScenarioPanel('best-case', 'Best Case', '#047857', true)" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#047857] hover:bg-[#F0FDF4] transition-all group cursor-pointer">
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#047857] hover:bg-[#F0FDF4] transition-all group cursor-pointer">
                   <div class="flex items-center gap-3">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#047857]"></span>
                     <div>
                       <div class="flex items-center gap-2">
                         <p class="text-sm font-medium text-gray-900">Best Case</p>
-                        <span class="stale-badge"><span class="stale-dot"></span> Data changed</span>
                       </div>
                       <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 28, 2026</p>
                     </div>
@@ -790,7 +673,7 @@
                 </a>
 
                 <!-- Conservative -->
-                <a href="javascript:void(0)" onclick="openScenarioPanel('conservative', 'Conservative', '#DC2626', false)" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#DC2626] hover:bg-[#FEF2F2] transition-all group cursor-pointer">
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#DC2626] hover:bg-[#FEF2F2] transition-all group cursor-pointer">
                   <div class="flex items-center gap-3">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></span>
                     <div>
@@ -873,7 +756,6 @@
                 <div>
                   <div class="flex items-center gap-2">
                     <h3 class="text-base font-semibold text-gray-900">Maybern Fund II</h3>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">Active</span>
                   </div>
                   <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 20, 2026 · Projection: Jan 2026 – Jun 2034</p>
                 </div>
@@ -1056,7 +938,6 @@
                 <div>
                   <div class="flex items-center gap-2">
                     <h3 class="text-base font-semibold text-gray-900">Maybern Fund III</h3>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">Deploying</span>
                   </div>
                   <p class="text-xs text-gray-500 mt-0.5">Last run: Feb 1, 2026 · Projection: Jan 2026 – Dec 2037</p>
                 </div>
@@ -1166,178 +1047,6 @@
     </div>
   </main>
   </div><!-- end flex layout -->
-
-  <!-- Scenario Output Panel (slide-over) -->
-  <div class="scenario-panel-overlay" id="scenarioPanelOverlay" onclick="closeScenarioPanel()">
-    <div class="scenario-panel" onclick="event.stopPropagation()">
-      <!-- Panel Header -->
-      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200">
-        <div class="flex items-center gap-3">
-          <span class="w-3 h-3 rounded-full" id="panelDot" style="background: #175CD3;"></span>
-          <div>
-            <h2 class="text-lg font-semibold text-gray-900" id="panelScenarioName">Base Case</h2>
-            <p class="text-xs text-gray-500">Maybern Fund I</p>
-          </div>
-        </div>
-        <button onclick="closeScenarioPanel()" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Panel Body -->
-      <div class="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
-
-        <!-- Stale Data Banner (conditional) -->
-        <div class="stale-banner" id="staleBanner">
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-lg bg-[#FDE68A] flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg class="w-4 h-4 text-[#92400E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-              </svg>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-semibold text-[#92400E]">Underlying data has changed</p>
-              <p class="text-xs text-[#A16207] mt-1">3 investment transactions were updated in the register since this scenario was last run on Jan 28, 2026. Rerun to refresh projections with the latest data.</p>
-              <div class="mt-3">
-                <button class="rerun-btn" id="rerunBtn" onclick="simulateRerun()">
-                  <svg class="w-4 h-4 play-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                  </svg>
-                  <span class="spinner"></span>
-                  <span id="rerunBtnLabel">Rerun Scenario</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Run Info Card -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Current Run</p>
-          </div>
-          <div class="p-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <p class="text-xs text-gray-400">Last Run</p>
-                <p class="text-sm font-medium text-gray-900" id="panelLastRun">Jan 28, 2026 at 2:34 PM</p>
-              </div>
-              <div>
-                <p class="text-xs text-gray-400">Duration</p>
-                <p class="text-sm font-medium text-gray-900">4m 12s</p>
-              </div>
-              <div>
-                <p class="text-xs text-gray-400">Projection Range</p>
-                <p class="text-sm font-medium text-gray-900">Jan 2026 – Dec 2035</p>
-              </div>
-              <div>
-                <p class="text-xs text-gray-400">Investments Processed</p>
-                <p class="text-sm font-medium text-gray-900">30 of 30</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Key Metrics Summary -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Key Metrics</p>
-          </div>
-          <div class="divide-y divide-gray-50">
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Projected Carry</p>
-              <p class="text-sm font-semibold text-gray-900">$127.5M</p>
-            </div>
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Projected AMF</p>
-              <p class="text-sm font-semibold text-gray-900">$18.2M</p>
-            </div>
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Net IRR</p>
-              <p class="text-sm font-semibold text-gray-900">14.2%</p>
-            </div>
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">TVPI</p>
-              <p class="text-sm font-semibold text-gray-900">1.85x</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Run History -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Run History</p>
-          </div>
-          <div class="p-2 space-y-1">
-            <div class="run-history-item current">
-              <div>
-                <div class="flex items-center gap-2">
-                  <p class="text-sm font-medium text-gray-900">Jan 28, 2026 at 2:34 PM</p>
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">Current</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-0.5">Duration: 4m 12s · 30 investments</p>
-              </div>
-              <a href="scenario-output-v2.html" class="text-xs text-[#175CD3] font-medium hover:underline">View Output</a>
-            </div>
-            <div class="run-history-item">
-              <div>
-                <p class="text-sm font-medium text-gray-700">Jan 22, 2026 at 10:15 AM</p>
-                <p class="text-xs text-gray-500 mt-0.5">Duration: 3m 58s · 30 investments</p>
-              </div>
-              <a href="#" class="text-xs text-gray-400 font-medium hover:text-[#175CD3] hover:underline">View Output</a>
-            </div>
-            <div class="run-history-item">
-              <div>
-                <p class="text-sm font-medium text-gray-700">Jan 15, 2026 at 4:02 PM</p>
-                <p class="text-xs text-gray-500 mt-0.5">Duration: 4m 05s · 30 investments</p>
-              </div>
-              <a href="#" class="text-xs text-gray-400 font-medium hover:text-[#175CD3] hover:underline">View Output</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Scenario Configuration Summary -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scenario Configuration</p>
-          </div>
-          <div class="divide-y divide-gray-50">
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Default Projection Case</p>
-              <span class="text-sm font-medium text-gray-900">Base</span>
-            </div>
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Investment Overrides</p>
-              <span class="text-sm font-medium text-gray-900">1 override</span>
-            </div>
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Fund Cash Balance</p>
-              <span class="text-sm font-medium text-gray-900">$45,000,000</span>
-            </div>
-            <div class="flex items-center justify-between px-4 py-3">
-              <p class="text-sm text-gray-600">Credit Facility Limit</p>
-              <span class="text-sm font-medium text-gray-900">$200,000,000</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Panel Footer -->
-      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <button class="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">Edit Configuration</button>
-        <a href="scenario-output-v2.html" class="px-4 py-2 bg-[#175CD3] text-white text-sm font-medium rounded-lg hover:bg-[#1849A9] transition-colors flex items-center gap-2">
-          View Full Output
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-          </svg>
-        </a>
-      </div>
-    </div>
-  </div>
-
   <!-- New Scenario Modal -->
   <div class="modal-overlay" id="newScenarioModal">
     <div class="modal-panel">
@@ -1417,7 +1126,6 @@
                     <p class="text-xs text-gray-400">Series B · $12.5M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1439,7 +1147,6 @@
                     <p class="text-xs text-gray-400">Series C · $18.0M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1460,7 +1167,6 @@
                     <p class="text-xs text-gray-400">Growth · $25.0M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1481,7 +1187,6 @@
                     <p class="text-xs text-gray-400">Series A · $8.0M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1523,7 +1228,6 @@
                     <p class="text-xs text-gray-400">Series C · $30.0M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1544,7 +1248,6 @@
                     <p class="text-xs text-gray-400">Growth · $22.0M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1565,7 +1268,6 @@
                     <p class="text-xs text-gray-400">Series A · $6.5M invested</p>
                   </div>
                   <div class="w-[100px]">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -1754,57 +1456,8 @@
     }
 
     // --- Scenario Output Panel ---
-    function openScenarioPanel(scenarioId, name, color, isStale) {
-      document.getElementById('panelScenarioName').textContent = name;
-      document.getElementById('panelDot').style.background = color;
-      document.getElementById('staleBanner').style.display = isStale ? 'block' : 'none';
-      document.getElementById('scenarioPanelOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      // Reset rerun button state
-      const btn = document.getElementById('rerunBtn');
-      btn.classList.remove('running');
-      document.getElementById('rerunBtnLabel').textContent = 'Rerun Scenario';
-    }
-
-    function closeScenarioPanel() {
-      document.getElementById('scenarioPanelOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    }
 
     // (Escape key handling merged with modal handler below)
-
-    function simulateRerun() {
-      const btn = document.getElementById('rerunBtn');
-      btn.classList.add('running');
-      document.getElementById('rerunBtnLabel').textContent = 'Running...';
-
-      // Simulate a rerun completing after 3 seconds
-      setTimeout(function() {
-        btn.classList.remove('running');
-        document.getElementById('rerunBtnLabel').textContent = 'Rerun Scenario';
-
-        // Hide stale banner and show success
-        const banner = document.getElementById('staleBanner');
-        banner.style.background = 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)';
-        banner.style.borderColor = '#A7F3D0';
-        banner.innerHTML = `
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-lg bg-[#A7F3D0] flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg class="w-4 h-4 text-[#065F46]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-semibold text-[#065F46]">Scenario rerun complete</p>
-              <p class="text-xs text-[#047857] mt-1">Projections updated with the latest transaction data. Run completed in 4m 08s.</p>
-            </div>
-          </div>
-        `;
-
-        // Update the "Current Run" timestamp
-        document.getElementById('panelLastRun').textContent = 'Feb 27, 2026 at ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-      }, 3000);
-    }
 
     // --- New Scenario Modal ---
     let currentDefaultCase = 'Base';
@@ -1831,8 +1484,7 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeNewScenarioModal();
-        closeScenarioPanel();
-      }
+              }
     });
 
     function updateDefaultCase() {
