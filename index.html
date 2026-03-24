@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenario Modeling Dashboard - Maybern</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maybern: {
+              primary: '#175CD3',
+              primaryLight: '#D1E9FF',
+              primaryDark: '#1849A9',
+              green: '#047857',
+              greenLight: '#D1FAE5',
+              greenDark: '#065F46',
+              gray: {
+                25: '#FCFCFD',
+                50: '#FAF9FC',
+                100: '#F2F2F7',
+                200: '#E4E4EC',
+                400: '#9998B3',
+                500: '#676685',
+                700: '#373454'
+              },
+              purple: {
+                50: '#FAF5FF',
+                100: '#EBE9FE',
+                200: '#DDD6FE',
+                600: '#7C3AED',
+                700: '#5925DC',
+                800: '#4A1FB8'
+              },
+              blue: {
+                100: '#D1E9FF',
+                700: '#175CD3',
+                800: '#1849A9'
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+
+    /* Side navigation */
+    .side-nav {
+      width: 220px;
+      min-width: 220px;
+      background: #FAF9FC;
+      border-right: 1px solid #E4E4EC;
+      min-height: calc(100vh - 65px);
+      padding: 24px 0;
+    }
+    .side-nav-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 24px;
+      font-size: 14px;
+      color: #676685;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 400;
+      text-decoration: none;
+    }
+    .side-nav-item:hover {
+      color: #373454;
+      background: #F2F2F7;
+    }
+    .side-nav-item.active {
+      color: #175CD3;
+      font-weight: 500;
+      background: #EFF6FF;
+      border-right: 2px solid #175CD3;
+    }
+    .side-nav-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px;
+      font-size: 14px;
+      color: #676685;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 400;
+    }
+    .side-nav-section:hover {
+      color: #373454;
+      background: #F2F2F7;
+    }
+    .side-nav-sub-item {
+      display: flex;
+      align-items: center;
+      padding: 7px 24px 7px 40px;
+      font-size: 13px;
+      color: #9998B3;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 400;
+      text-decoration: none;
+    }
+    .side-nav-sub-item:hover {
+      color: #676685;
+      background: #F2F2F7;
+    }
+    .side-nav-sub-item.active {
+      color: #373454;
+      font-weight: 500;
+    }
+    .config-subnav {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+    .config-subnav.expanded {
+      max-height: 250px;
+    }
+    .config-chevron {
+      transition: transform 0.2s;
+    }
+    .config-chevron.rotated {
+      transform: rotate(180deg);
+    }
+
+    .model-card {
+      transition: all 0.15s ease;
+      border: 1px solid #E4E4EC;
+    }
+    .model-card:hover {
+      border-color: #175CD3;
+      box-shadow: 0 4px 12px rgba(23, 92, 211, 0.08);
+    }
+    .scenario-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+    .scenario-tag:hover {
+      filter: brightness(0.95);
+    }
+    .scenario-tag.active {
+      border-color: currentColor;
+      box-shadow: 0 0 0 2px rgba(23, 92, 211, 0.1);
+    }
+    .blended-metric-card {
+      transition: all 0.2s ease;
+    }
+    .blended-metric-card.active {
+      border-color: #175CD3;
+      box-shadow: 0 0 0 2px rgba(23, 92, 211, 0.12);
+    }
+
+    /* Scenario selector dropdown */
+    .scenario-selector {
+      position: relative;
+    }
+    .scenario-selector-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 260px;
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      z-index: 50;
+      display: none;
+    }
+    .scenario-selector-menu.open {
+      display: block;
+    }
+    .selector-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .selector-item:hover {
+      background: #F9FAFB;
+    }
+    .selector-item.active {
+      background: #EFF6FF;
+    }
+
+    /* Expand/collapse for scenarios */
+    .scenarios-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .scenarios-list.expanded {
+      max-height: 400px;
+    }
+
+    .model-expand-btn {
+      transition: transform 0.2s;
+    }
+    .model-expand-btn.rotated {
+      transform: rotate(180deg);
+    }
+
+    /* New Scenario Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 40px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-panel {
+      background: white;
+      border-radius: 16px;
+      width: 720px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.16);
+      transform: translateY(-10px);
+      transition: transform 0.25s ease;
+    }
+    .modal-overlay.open .modal-panel {
+      transform: translateY(0);
+    }
+    .modal-section {
+      border: 1px solid #E4E4EC;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .modal-section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: #FAF9FC;
+      border-bottom: 1px solid #E4E4EC;
+    }
+    .modal-section-header .section-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .investment-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid #F2F2F7;
+      transition: background 0.1s;
+    }
+    .investment-row:last-child {
+      border-bottom: none;
+    }
+    .investment-row:hover {
+      background: #FCFCFD;
+    }
+    .investment-row.overridden {
+      background: #FFF7ED;
+    }
+    .override-select {
+      font-size: 13px;
+      padding: 5px 10px;
+      border: 1px solid #E4E4EC;
+      border-radius: 8px;
+      background: white;
+      color: #373454;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+      min-width: 160px;
+    }
+    .override-select:focus {
+      border-color: #175CD3;
+      box-shadow: 0 0 0 2px rgba(23, 92, 211, 0.1);
+    }
+    .override-select.overridden {
+      border-color: #F59E0B;
+      background: #FFFBEB;
+    }
+    .variable-input {
+      font-size: 13px;
+      padding: 6px 12px;
+      border: 1px solid #E4E4EC;
+      border-radius: 8px;
+      background: white;
+      color: #373454;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 160px;
+      text-align: right;
+    }
+    .variable-input:focus {
+      border-color: #175CD3;
+      box-shadow: 0 0 0 2px rgba(23, 92, 211, 0.1);
+    }
+    .override-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #FEF3C7;
+      color: #92400E;
+      white-space: nowrap;
+    }
+    .default-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #F2F2F7;
+      color: #9998B3;
+      white-space: nowrap;
+    }
+
+    /* Stale data indicator */
+    .stale-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 500;
+      background: #FEF3C7;
+      color: #92400E;
+      white-space: nowrap;
+    }
+    .stale-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #F59E0B;
+      animation: stalePulse 2s infinite;
+    }
+    @keyframes stalePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Scenario Output Panel (slide-over) */
+    .scenario-panel-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .scenario-panel-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .scenario-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 560px;
+      height: 100vh;
+      background: white;
+      box-shadow: -8px 0 32px rgba(0,0,0,0.12);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 91;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .scenario-panel-overlay.open .scenario-panel {
+      transform: translateX(0);
+    }
+    .stale-banner {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .rerun-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #175CD3;
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .rerun-btn:hover {
+      background: #1849A9;
+    }
+    .rerun-btn.running {
+      background: #6366F1;
+      pointer-events: none;
+    }
+    .rerun-btn .spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .rerun-btn.running .spinner {
+      display: block;
+    }
+    .rerun-btn.running .play-icon {
+      display: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .run-history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 8px;
+      transition: background 0.1s;
+    }
+    .run-history-item:hover {
+      background: #F9FAFB;
+    }
+    .run-history-item.current {
+      background: #EFF6FF;
+      border: 1px solid #D1E9FF;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header (matching v9) -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-[#047857]">
+            <rect x="2" y="14" width="3" height="8" fill="currentColor"/>
+            <rect x="7" y="10" width="3" height="12" fill="currentColor"/>
+            <rect x="12" y="6" width="3" height="16" fill="currentColor"/>
+            <rect x="17" y="2" width="3" height="20" fill="currentColor"/>
+          </svg>
+          <span class="text-xl font-semibold text-[#065F46]">maybern</span>
+        </div>
+        <nav class="flex items-center space-x-6 ml-8">
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Funds</span>
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Entities</span>
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Investors</span>
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Events</span>
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Reports</span>
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Report Builder</span>
+          <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer">Pivots</span>
+          <span class="text-sm font-medium text-[#175CD3] border-b-2 border-[#175CD3] pb-4 -mb-4">Scenario Modeling</span>
+        </nav>
+      </div>
+      <div class="flex items-center space-x-4">
+        <select class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white">
+          <option>Sales Demo SM 082825</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Layout: Sidebar + Main -->
+  <div class="flex">
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+      <a class="side-nav-item active" href="#">Models</a>
+      <a class="side-nav-item" href="#">Transactions</a>
+      <div>
+        <div class="side-nav-section" onclick="toggleConfigNav()">
+          <span>Configuration</span>
+          <svg class="w-4 h-4 config-chevron" id="configChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+        <div class="config-subnav" id="configSubnav">
+          <a class="side-nav-sub-item" href="#">Fund Families</a>
+          <a class="side-nav-sub-item" href="#">Workflows</a>
+          <a class="side-nav-sub-item" href="#">Investments</a>
+          <a class="side-nav-sub-item" href="#">Transaction Codes</a>
+          <a class="side-nav-sub-item" href="#">Classifications</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 min-w-0 px-8 py-8 max-w-[1200px]">
+      <!-- Page Title -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Scenario Modeling</h1>
+          <p class="text-sm text-gray-500 mt-1">View and manage fund models across your portfolio</p>
+        </div>
+        <button class="px-4 py-2.5 bg-[#175CD3] text-white text-sm font-medium rounded-lg hover:bg-[#1849A9] transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          New Model
+        </button>
+      </div>
+    </div>
+
+    <!-- Blended Metrics Section -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[#D1E9FF] flex items-center justify-center">
+            <svg class="w-4 h-4 text-[#175CD3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-gray-900">Blended Portfolio Metrics</h2>
+            <p class="text-xs text-gray-500">Aggregated across all models sharing the selected scenario</p>
+          </div>
+        </div>
+
+        <!-- Scenario Selector -->
+        <div class="scenario-selector">
+          <button onclick="toggleBlendedDropdown()" class="flex items-center gap-2 px-3 py-1.5 bg-[#EFF6FF] border border-[#175CD3] rounded-lg hover:bg-[#DBEAFE] transition-colors text-sm">
+            <span class="w-2.5 h-2.5 rounded-full" id="blendedDotColor" style="background: #175CD3;"></span>
+            <span class="font-medium text-[#175CD3]" id="blendedScenarioLabel">Base Case</span>
+            <svg class="w-4 h-4 text-[#175CD3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="scenario-selector-menu" id="blendedDropdown">
+            <div class="p-3 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Select a shared scenario</p>
+            </div>
+            <div class="py-1">
+              <div class="selector-item active" onclick="selectBlendedScenario('base', 'Base Case', '#175CD3')">
+                <span class="w-2.5 h-2.5 rounded-full mr-3" style="background: #175CD3;"></span>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Base Case</p>
+                  <p class="text-xs text-gray-500">Available in 3 of 3 models</p>
+                </div>
+                <svg class="w-4 h-4 text-[#175CD3]" id="checkBase" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div class="selector-item" onclick="selectBlendedScenario('best', 'Best Case', '#047857')">
+                <span class="w-2.5 h-2.5 rounded-full mr-3" style="background: #047857;"></span>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Best Case</p>
+                  <p class="text-xs text-gray-500">Available in 2 of 3 models</p>
+                </div>
+                <svg class="w-4 h-4 text-[#047857] hidden" id="checkBest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div class="selector-item" onclick="selectBlendedScenario('conservative', 'Conservative', '#DC2626')">
+                <span class="w-2.5 h-2.5 rounded-full mr-3" style="background: #DC2626;"></span>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Conservative</p>
+                  <p class="text-xs text-gray-500">Available in 3 of 3 models</p>
+                </div>
+                <svg class="w-4 h-4 text-[#DC2626] hidden" id="checkConservative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blended metric cards -->
+      <div class="grid grid-cols-2 gap-4" id="blendedMetrics">
+        <!-- Total Projected Carry -->
+        <div class="blended-metric-card bg-[#F8FAFF] rounded-xl border border-[#D1E9FF] p-5">
+          <div class="flex items-center justify-between mb-1">
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Total Projected Carry</p>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">MXL Calculated</span>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 mt-2" id="blendedCarry">$347.2M</p>
+          <div class="flex items-center gap-4 mt-3">
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="w-2 h-2 rounded-full bg-[#175CD3]"></span>
+              <span class="text-gray-500">Fund I:</span>
+              <span class="font-medium text-gray-900" id="carryFund1">$127.5M</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="w-2 h-2 rounded-full bg-[#6366F1]"></span>
+              <span class="text-gray-500">Fund II:</span>
+              <span class="font-medium text-gray-900" id="carryFund2">$142.8M</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="w-2 h-2 rounded-full bg-[#7C3AED]"></span>
+              <span class="text-gray-500">Fund III:</span>
+              <span class="font-medium text-gray-900" id="carryFund3">$76.9M</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Projected AMF -->
+        <div class="blended-metric-card bg-[#F8FAFF] rounded-xl border border-[#D1E9FF] p-5">
+          <div class="flex items-center justify-between mb-1">
+            <p class="text-xs text-gray-500 uppercase tracking-wide font-medium">Total Projected AMF</p>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">MXL Calculated</span>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 mt-2" id="blendedAMF">$52.6M</p>
+          <div class="flex items-center gap-4 mt-3">
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="w-2 h-2 rounded-full bg-[#175CD3]"></span>
+              <span class="text-gray-500">Fund I:</span>
+              <span class="font-medium text-gray-900" id="amfFund1">$18.2M</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="w-2 h-2 rounded-full bg-[#6366F1]"></span>
+              <span class="text-gray-500">Fund II:</span>
+              <span class="font-medium text-gray-900" id="amfFund2">$21.4M</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="w-2 h-2 rounded-full bg-[#7C3AED]"></span>
+              <span class="text-gray-500">Fund III:</span>
+              <span class="font-medium text-gray-900" id="amfFund3">$13.0M</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fund Models Section -->
+    <div class="mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900">Fund Models</h2>
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <span>3 models</span>
+        </div>
+      </div>
+
+      <!-- Model Cards -->
+      <div class="space-y-4">
+
+        <!-- Fund I Model Card -->
+        <div class="model-card bg-white rounded-xl overflow-hidden">
+          <!-- Card Header -->
+          <div class="p-5 cursor-pointer" onclick="toggleModel('fund1')">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-[#D1E9FF] flex items-center justify-center">
+                  <span class="text-sm font-bold text-[#175CD3]">I</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base font-semibold text-gray-900">Maybern Fund I</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">Active</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 28, 2026 · Projection: Jan 2026 – Dec 2035</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6">
+                <!-- Quick stats -->
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Projected Carry</p>
+                  <p class="text-sm font-semibold text-gray-900">$127.5M</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Projected AMF</p>
+                  <p class="text-sm font-semibold text-gray-900">$18.2M</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Net IRR</p>
+                  <p class="text-sm font-semibold text-gray-900">14.2%</p>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 model-expand-btn rotated" id="expandFund1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expandable Scenarios Section -->
+          <div class="scenarios-list expanded" id="scenariosFund1">
+            <div class="border-t border-gray-100 px-5 pb-4 pt-3">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scenarios</p>
+                <button onclick="event.stopPropagation(); openNewScenarioModal('Maybern Fund I')" class="text-xs text-[#175CD3] hover:text-[#1849A9] font-medium flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  New Scenario
+                </button>
+              </div>
+
+              <!-- Scenario rows -->
+              <div class="space-y-2">
+                <!-- Base Case -->
+                <a href="javascript:void(0)" onclick="openScenarioPanel('base-case', 'Base Case', '#175CD3', true)" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#175CD3] hover:bg-[#F8FAFF] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#175CD3]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">Base Case</p>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">Default</span>
+                        <span class="stale-badge"><span class="stale-dot"></span> Data changed</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 28, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$127.5M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$18.2M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">14.2%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.85x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#175CD3] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <!-- Best Case -->
+                <a href="javascript:void(0)" onclick="openScenarioPanel('best-case', 'Best Case', '#047857', true)" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#047857] hover:bg-[#F0FDF4] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#047857]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">Best Case</p>
+                        <span class="stale-badge"><span class="stale-dot"></span> Data changed</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 28, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$165.3M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$18.2M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">17.0%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">2.15x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#047857] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <!-- Conservative -->
+                <a href="javascript:void(0)" onclick="openScenarioPanel('conservative', 'Conservative', '#DC2626', false)" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#DC2626] hover:bg-[#FEF2F2] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">Conservative</p>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 25, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$89.1M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$18.2M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">12.5%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.62x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#DC2626] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <!-- Deal A Test (Fund I unique) -->
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#7C3AED] hover:bg-[#FAF5FF] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#7C3AED]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">Deal A Early Exit</p>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Ad-hoc</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 15, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$134.8M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$17.9M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">15.1%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.92x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#7C3AED] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fund II Model Card -->
+        <div class="model-card bg-white rounded-xl overflow-hidden">
+          <div class="p-5 cursor-pointer" onclick="toggleModel('fund2')">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-[#E0E7FF] flex items-center justify-center">
+                  <span class="text-sm font-bold text-[#6366F1]">II</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base font-semibold text-gray-900">Maybern Fund II</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">Active</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 20, 2026 · Projection: Jan 2026 – Jun 2034</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6">
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Projected Carry</p>
+                  <p class="text-sm font-semibold text-gray-900">$142.8M</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Projected AMF</p>
+                  <p class="text-sm font-semibold text-gray-900">$21.4M</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Net IRR</p>
+                  <p class="text-sm font-semibold text-gray-900">16.1%</p>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 model-expand-btn" id="expandFund2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenarios-list" id="scenariosFund2">
+            <div class="border-t border-gray-100 px-5 pb-4 pt-3">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scenarios</p>
+                <button onclick="event.stopPropagation(); openNewScenarioModal('Maybern Fund II')" class="text-xs text-[#175CD3] hover:text-[#1849A9] font-medium flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  New Scenario
+                </button>
+              </div>
+              <div class="space-y-2">
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#175CD3] hover:bg-[#F8FAFF] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#175CD3]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">Base Case</p>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">Default</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 20, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$142.8M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$21.4M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">16.1%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">2.05x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#175CD3] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#047857] hover:bg-[#F0FDF4] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#047857]"></span>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Best Case</p>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 18, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$178.4M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$21.4M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">19.2%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">2.35x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#047857] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#DC2626] hover:bg-[#FEF2F2] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></span>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Conservative</p>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 18, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$108.2M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$21.4M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">13.8%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.72x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#DC2626] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <!-- Fund II unique: No CF Stress Test -->
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#D97706] hover:bg-[#FFFBEB] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#D97706]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">No CF Stress Test</p>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Ad-hoc</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 10, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$131.5M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$21.4M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">14.8%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.88x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#D97706] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fund III Model Card -->
+        <div class="model-card bg-white rounded-xl overflow-hidden">
+          <div class="p-5 cursor-pointer" onclick="toggleModel('fund3')">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-[#EBE9FE] flex items-center justify-center">
+                  <span class="text-sm font-bold text-[#7C3AED]">III</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base font-semibold text-gray-900">Maybern Fund III</h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">Deploying</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-0.5">Last run: Feb 1, 2026 · Projection: Jan 2026 – Dec 2037</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-6">
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Projected Carry</p>
+                  <p class="text-sm font-semibold text-gray-900">$76.9M</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Projected AMF</p>
+                  <p class="text-sm font-semibold text-gray-900">$13.0M</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs text-gray-500">Net IRR</p>
+                  <p class="text-sm font-semibold text-gray-900">11.8%</p>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 model-expand-btn" id="expandFund3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenarios-list" id="scenariosFund3">
+            <div class="border-t border-gray-100 px-5 pb-4 pt-3">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scenarios</p>
+                <button onclick="event.stopPropagation(); openNewScenarioModal('Maybern Fund III')" class="text-xs text-[#175CD3] hover:text-[#1849A9] font-medium flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  New Scenario
+                </button>
+              </div>
+              <div class="space-y-2">
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#175CD3] hover:bg-[#F8FAFF] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#175CD3]"></span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm font-medium text-gray-900">Base Case</p>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">Default</span>
+                      </div>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Feb 1, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$76.9M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$13.0M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">11.8%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.58x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#175CD3] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+
+                <a href="#" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-[#DC2626] hover:bg-[#FEF2F2] transition-all group cursor-pointer">
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></span>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Conservative</p>
+                      <p class="text-xs text-gray-500 mt-0.5">Last run: Feb 1, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-5">
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Carry</p>
+                      <p class="text-xs font-medium text-gray-700">$52.4M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">AMF</p>
+                      <p class="text-xs font-medium text-gray-700">$13.0M</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">Net IRR</p>
+                      <p class="text-xs font-medium text-gray-700">9.4%</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-gray-400">TVPI</p>
+                      <p class="text-xs font-medium text-gray-700">1.38x</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#DC2626] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+  </div><!-- end flex layout -->
+
+  <!-- Scenario Output Panel (slide-over) -->
+  <div class="scenario-panel-overlay" id="scenarioPanelOverlay" onclick="closeScenarioPanel()">
+    <div class="scenario-panel" onclick="event.stopPropagation()">
+      <!-- Panel Header -->
+      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-3 rounded-full" id="panelDot" style="background: #175CD3;"></span>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900" id="panelScenarioName">Base Case</h2>
+            <p class="text-xs text-gray-500">Maybern Fund I</p>
+          </div>
+        </div>
+        <button onclick="closeScenarioPanel()" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Panel Body -->
+      <div class="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
+
+        <!-- Stale Data Banner (conditional) -->
+        <div class="stale-banner" id="staleBanner">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-[#FDE68A] flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4 text-[#92400E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-[#92400E]">Underlying data has changed</p>
+              <p class="text-xs text-[#A16207] mt-1">3 investment transactions were updated in the register since this scenario was last run on Jan 28, 2026. Rerun to refresh projections with the latest data.</p>
+              <div class="mt-3">
+                <button class="rerun-btn" id="rerunBtn" onclick="simulateRerun()">
+                  <svg class="w-4 h-4 play-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  <span class="spinner"></span>
+                  <span id="rerunBtnLabel">Rerun Scenario</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Run Info Card -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Current Run</p>
+          </div>
+          <div class="p-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-gray-400">Last Run</p>
+                <p class="text-sm font-medium text-gray-900" id="panelLastRun">Jan 28, 2026 at 2:34 PM</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400">Duration</p>
+                <p class="text-sm font-medium text-gray-900">4m 12s</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400">Projection Range</p>
+                <p class="text-sm font-medium text-gray-900">Jan 2026 – Dec 2035</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400">Investments Processed</p>
+                <p class="text-sm font-medium text-gray-900">30 of 30</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Metrics Summary -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Key Metrics</p>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Projected Carry</p>
+              <p class="text-sm font-semibold text-gray-900">$127.5M</p>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Projected AMF</p>
+              <p class="text-sm font-semibold text-gray-900">$18.2M</p>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Net IRR</p>
+              <p class="text-sm font-semibold text-gray-900">14.2%</p>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">TVPI</p>
+              <p class="text-sm font-semibold text-gray-900">1.85x</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Run History -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Run History</p>
+          </div>
+          <div class="p-2 space-y-1">
+            <div class="run-history-item current">
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="text-sm font-medium text-gray-900">Jan 28, 2026 at 2:34 PM</p>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#D1E9FF] text-[#175CD3]">Current</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-0.5">Duration: 4m 12s · 30 investments</p>
+              </div>
+              <a href="scenario-output-v2.html" class="text-xs text-[#175CD3] font-medium hover:underline">View Output</a>
+            </div>
+            <div class="run-history-item">
+              <div>
+                <p class="text-sm font-medium text-gray-700">Jan 22, 2026 at 10:15 AM</p>
+                <p class="text-xs text-gray-500 mt-0.5">Duration: 3m 58s · 30 investments</p>
+              </div>
+              <a href="#" class="text-xs text-gray-400 font-medium hover:text-[#175CD3] hover:underline">View Output</a>
+            </div>
+            <div class="run-history-item">
+              <div>
+                <p class="text-sm font-medium text-gray-700">Jan 15, 2026 at 4:02 PM</p>
+                <p class="text-xs text-gray-500 mt-0.5">Duration: 4m 05s · 30 investments</p>
+              </div>
+              <a href="#" class="text-xs text-gray-400 font-medium hover:text-[#175CD3] hover:underline">View Output</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenario Configuration Summary -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scenario Configuration</p>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Default Projection Case</p>
+              <span class="text-sm font-medium text-gray-900">Base</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Investment Overrides</p>
+              <span class="text-sm font-medium text-gray-900">1 override</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Fund Cash Balance</p>
+              <span class="text-sm font-medium text-gray-900">$45,000,000</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3">
+              <p class="text-sm text-gray-600">Credit Facility Limit</p>
+              <span class="text-sm font-medium text-gray-900">$200,000,000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Panel Footer -->
+      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <button class="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">Edit Configuration</button>
+        <a href="scenario-output-v2.html" class="px-4 py-2 bg-[#175CD3] text-white text-sm font-medium rounded-lg hover:bg-[#1849A9] transition-colors flex items-center gap-2">
+          View Full Output
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Scenario Modal -->
+  <div class="modal-overlay" id="newScenarioModal">
+    <div class="modal-panel">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900">New Scenario</h2>
+          <p class="text-sm text-gray-500 mt-0.5" id="modalFundName">Maybern Fund I</p>
+        </div>
+        <button onclick="closeNewScenarioModal()" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="px-6 py-5 space-y-5">
+
+        <!-- Scenario Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Scenario Name</label>
+          <input type="text" placeholder="e.g., Base Case, Optimistic, Deal A Early Exit" class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:border-[#175CD3] focus:ring-2 focus:ring-[#175CD3]/10 outline-none transition-all" id="scenarioNameInput">
+        </div>
+
+        <!-- Section 1: Investment Projection Cases -->
+        <div class="modal-section">
+          <div class="modal-section-header">
+            <div class="section-icon bg-[#D1E9FF]">
+              <svg class="w-4 h-4 text-[#175CD3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-gray-900">Investment Projection Cases</p>
+              <p class="text-xs text-gray-500">Set the default projection case for all investments, then override individual ones as needed</p>
+            </div>
+          </div>
+
+          <!-- Default case selector -->
+          <div class="px-4 py-3 bg-[#F8FAFF] border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#175CD3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                </svg>
+                <span class="text-sm font-medium text-gray-700">Default Case for All Investments</span>
+              </div>
+              <select class="override-select font-medium" id="defaultCaseSelect" onchange="updateDefaultCase()">
+                <option value="Base" selected>Base</option>
+                <option value="Optimistic">Optimistic</option>
+                <option value="Conservative">Conservative</option>
+                <option value="Stress Test">Stress Test</option>
+              </select>
+            </div>
+            <p class="text-xs text-gray-400 mt-1.5 ml-6">This case applies to all <span id="investmentCountLabel">30</span> investments unless overridden below</p>
+          </div>
+
+          <!-- Investment overrides list -->
+          <div>
+            <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+              <div class="flex items-center gap-4">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide w-[200px]">Investment</span>
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide w-[100px]">Status</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Projection Case</span>
+              </div>
+            </div>
+
+            <!-- Investment rows - Fund I example with 8 shown -->
+            <div id="investmentList">
+              <div class="investment-row overridden" data-investment="deal-a">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal A — Acme Corp</p>
+                    <p class="text-xs text-gray-400">Series B · $12.5M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="override-badge">Override</span>
+                  <select class="override-select overridden" onchange="handleOverrideChange(this, 'deal-a')">
+                    <option value="Base">Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Deal A Early Sale" selected>Deal A Early Sale</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-b">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal B — NovaTech</p>
+                    <p class="text-xs text-gray-400">Series C · $18.0M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-b')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-c">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal C — Helios Energy</p>
+                    <p class="text-xs text-gray-400">Growth · $25.0M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-c')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-d">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal D — CloudMesh</p>
+                    <p class="text-xs text-gray-400">Series A · $8.0M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-d')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-e">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal E — Vantage Bio</p>
+                    <p class="text-xs text-gray-400">Series B · $15.0M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-50 text-yellow-700">Realized</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-e')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-f">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal F — QuantumLeap AI</p>
+                    <p class="text-xs text-gray-400">Series C · $30.0M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-f')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-g">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal G — Apex Logistics</p>
+                    <p class="text-xs text-gray-400">Growth · $22.0M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-g')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="investment-row" data-investment="deal-h">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="w-[200px]">
+                    <p class="text-sm font-medium text-gray-900">Deal H — Meridian Health</p>
+                    <p class="text-xs text-gray-400">Series A · $6.5M invested</p>
+                  </div>
+                  <div class="w-[100px]">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700">Active</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-h')">
+                    <option value="Base" selected>Base</option>
+                    <option value="Optimistic">Optimistic</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Stress Test">Stress Test</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Show more indicator -->
+            <div class="px-4 py-2.5 text-center border-t border-gray-100">
+              <button class="text-xs text-[#175CD3] hover:text-[#1849A9] font-medium" onclick="toggleShowAllInvestments()">
+                <span id="showMoreLabel">Show all 30 investments</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Workflow Variable Starting Values -->
+        <div class="modal-section">
+          <div class="modal-section-header">
+            <div class="section-icon bg-[#EBE9FE]">
+              <svg class="w-4 h-4 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-gray-900">Workflow Variable Starting Values</p>
+              <p class="text-xs text-gray-500">Set the initial values for variables used as inputs in the workflow graph</p>
+            </div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#EBE9FE] text-[#7C3AED]">From Workflow</span>
+          </div>
+
+          <div class="divide-y divide-gray-100">
+            <!-- Variable: Fund Cash Balance -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-sm font-medium text-gray-900">Fund Cash Balance</p>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Currency</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-0.5">Starting cash position of the fund at projection start date</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-400">$</span>
+                <input type="text" class="variable-input" value="45,000,000" placeholder="0">
+              </div>
+            </div>
+
+            <!-- Variable: Credit Facility Limit -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-sm font-medium text-gray-900">Credit Facility Limit</p>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Currency</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-0.5">Maximum available credit line for the fund</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-400">$</span>
+                <input type="text" class="variable-input" value="200,000,000" placeholder="0">
+              </div>
+            </div>
+
+            <!-- Variable: Credit Facility Balance -->
+            <div class="flex items-center justify-between px-4 py-3.5">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-sm font-medium text-gray-900">Credit Facility Balance</p>
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Currency</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-0.5">Current outstanding balance on the credit facility</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-400">$</span>
+                <input type="text" class="variable-input" value="35,000,000" placeholder="0">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+        <div class="flex items-center gap-2 text-xs text-gray-400">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span id="overrideCountLabel">1 investment override · 3 variables configured</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="closeNewScenarioModal()" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
+          <button class="px-5 py-2 bg-[#175CD3] text-white text-sm font-medium rounded-lg hover:bg-[#1849A9] transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Create & Run Scenario
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Config subnav toggle
+    function toggleConfigNav() {
+      document.getElementById('configSubnav').classList.toggle('expanded');
+      document.getElementById('configChevron').classList.toggle('rotated');
+    }
+
+    // Model expand/collapse
+    function toggleModel(modelId) {
+      const scenarios = document.getElementById('scenarios' + modelId.charAt(0).toUpperCase() + modelId.slice(1));
+      const expandBtn = document.getElementById('expand' + modelId.charAt(0).toUpperCase() + modelId.slice(1));
+      scenarios.classList.toggle('expanded');
+      expandBtn.classList.toggle('rotated');
+    }
+
+    // Blended scenario dropdown
+    function toggleBlendedDropdown() {
+      document.getElementById('blendedDropdown').classList.toggle('open');
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('blendedDropdown');
+      const selector = document.querySelector('.scenario-selector');
+      if (!selector.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // Blended metric data by scenario
+    const blendedData = {
+      base: {
+        carry: { total: '$347.2M', fund1: '$127.5M', fund2: '$142.8M', fund3: '$76.9M' },
+        amf: { total: '$52.6M', fund1: '$18.2M', fund2: '$21.4M', fund3: '$13.0M' }
+      },
+      best: {
+        carry: { total: '$343.7M', fund1: '$165.3M', fund2: '$178.4M', fund3: '—' },
+        amf: { total: '$39.6M', fund1: '$18.2M', fund2: '$21.4M', fund3: '—' },
+        note: 'Fund III does not have a Best Case scenario'
+      },
+      conservative: {
+        carry: { total: '$249.7M', fund1: '$89.1M', fund2: '$108.2M', fund3: '$52.4M' },
+        amf: { total: '$52.6M', fund1: '$18.2M', fund2: '$21.4M', fund3: '$13.0M' }
+      }
+    };
+
+    function selectBlendedScenario(scenario, label, color) {
+      // Update button
+      document.getElementById('blendedScenarioLabel').textContent = label;
+      document.getElementById('blendedDotColor').style.background = color;
+
+      // Update check marks
+      document.getElementById('checkBase').classList.toggle('hidden', scenario !== 'base');
+      document.getElementById('checkBest').classList.toggle('hidden', scenario !== 'best');
+      document.getElementById('checkConservative').classList.toggle('hidden', scenario !== 'conservative');
+
+      // Update active state on items
+      document.querySelectorAll('.selector-item').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      // Update metric values
+      const data = blendedData[scenario];
+      document.getElementById('blendedCarry').textContent = data.carry.total;
+      document.getElementById('carryFund1').textContent = data.carry.fund1;
+      document.getElementById('carryFund2').textContent = data.carry.fund2;
+      document.getElementById('carryFund3').textContent = data.carry.fund3;
+      document.getElementById('blendedAMF').textContent = data.amf.total;
+      document.getElementById('amfFund1').textContent = data.amf.fund1;
+      document.getElementById('amfFund2').textContent = data.amf.fund2;
+      document.getElementById('amfFund3').textContent = data.amf.fund3;
+
+      // Close dropdown
+      document.getElementById('blendedDropdown').classList.remove('open');
+    }
+
+    // --- Scenario Output Panel ---
+    function openScenarioPanel(scenarioId, name, color, isStale) {
+      document.getElementById('panelScenarioName').textContent = name;
+      document.getElementById('panelDot').style.background = color;
+      document.getElementById('staleBanner').style.display = isStale ? 'block' : 'none';
+      document.getElementById('scenarioPanelOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      // Reset rerun button state
+      const btn = document.getElementById('rerunBtn');
+      btn.classList.remove('running');
+      document.getElementById('rerunBtnLabel').textContent = 'Rerun Scenario';
+    }
+
+    function closeScenarioPanel() {
+      document.getElementById('scenarioPanelOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // (Escape key handling merged with modal handler below)
+
+    function simulateRerun() {
+      const btn = document.getElementById('rerunBtn');
+      btn.classList.add('running');
+      document.getElementById('rerunBtnLabel').textContent = 'Running...';
+
+      // Simulate a rerun completing after 3 seconds
+      setTimeout(function() {
+        btn.classList.remove('running');
+        document.getElementById('rerunBtnLabel').textContent = 'Rerun Scenario';
+
+        // Hide stale banner and show success
+        const banner = document.getElementById('staleBanner');
+        banner.style.background = 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)';
+        banner.style.borderColor = '#A7F3D0';
+        banner.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-[#A7F3D0] flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4 text-[#065F46]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-[#065F46]">Scenario rerun complete</p>
+              <p class="text-xs text-[#047857] mt-1">Projections updated with the latest transaction data. Run completed in 4m 08s.</p>
+            </div>
+          </div>
+        `;
+
+        // Update the "Current Run" timestamp
+        document.getElementById('panelLastRun').textContent = 'Feb 27, 2026 at ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }, 3000);
+    }
+
+    // --- New Scenario Modal ---
+    let currentDefaultCase = 'Base';
+    let overrides = { 'deal-a': 'Deal A Early Sale' };
+
+    function openNewScenarioModal(fundName) {
+      document.getElementById('modalFundName').textContent = fundName || 'Maybern Fund I';
+      document.getElementById('newScenarioModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      updateOverrideCount();
+    }
+
+    function closeNewScenarioModal() {
+      document.getElementById('newScenarioModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Close modal on overlay click
+    document.getElementById('newScenarioModal').addEventListener('click', function(e) {
+      if (e.target === this) closeNewScenarioModal();
+    });
+
+    // Close modal or panel on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeNewScenarioModal();
+        closeScenarioPanel();
+      }
+    });
+
+    function updateDefaultCase() {
+      const newDefault = document.getElementById('defaultCaseSelect').value;
+      currentDefaultCase = newDefault;
+      // Reset all non-overridden selects to the new default
+      document.querySelectorAll('#investmentList .investment-row').forEach(row => {
+        const investmentId = row.dataset.investment;
+        const select = row.querySelector('select');
+        if (!overrides[investmentId]) {
+          select.value = newDefault;
+        }
+      });
+    }
+
+    function handleOverrideChange(selectEl, investmentId) {
+      const row = selectEl.closest('.investment-row');
+      const badge = row.querySelector('.override-badge, .default-badge');
+
+      if (selectEl.value !== currentDefaultCase) {
+        // This is an override
+        overrides[investmentId] = selectEl.value;
+        row.classList.add('overridden');
+        selectEl.classList.add('overridden');
+        if (badge) {
+          badge.className = 'override-badge';
+          badge.textContent = 'Override';
+        }
+      } else {
+        // Back to default
+        delete overrides[investmentId];
+        row.classList.remove('overridden');
+        selectEl.classList.remove('overridden');
+        if (badge) {
+          badge.className = 'default-badge';
+          badge.textContent = 'Default';
+        }
+      }
+      updateOverrideCount();
+    }
+
+    function updateOverrideCount() {
+      const count = Object.keys(overrides).length;
+      const varCount = document.querySelectorAll('.variable-input').length;
+      const label = count === 0
+        ? `No investment overrides · ${varCount} variables configured`
+        : `${count} investment override${count > 1 ? 's' : ''} · ${varCount} variables configured`;
+      document.getElementById('overrideCountLabel').textContent = label;
+    }
+
+    function toggleShowAllInvestments() {
+      // In a real app this would load more investments; for mockup just toggle label
+      const label = document.getElementById('showMoreLabel');
+      if (label.textContent.includes('Show all')) {
+        label.textContent = 'Show fewer investments';
+      } else {
+        label.textContent = 'Show all 30 investments';
+      }
+    }
+  </script>
+</body>
+</html>
