@@ -713,7 +713,6 @@
                     <div>
                       <div class="flex items-center gap-2">
                         <p class="text-sm font-medium text-gray-900">Deal A Early Exit</p>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Ad-hoc</span>
                       </div>
                       <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 15, 2026</p>
                     </div>
@@ -721,19 +720,19 @@
                   <div class="flex items-center gap-5">
                     <div class="text-right">
                       <p class="text-xs text-gray-400">Carry</p>
-                      <p class="text-xs font-medium text-gray-700">$134.8M</p>
+                      <p class="text-xs font-medium text-gray-700">$96.3M</p>
                     </div>
                     <div class="text-right">
                       <p class="text-xs text-gray-400">AMF</p>
-                      <p class="text-xs font-medium text-gray-700">$17.9M</p>
+                      <p class="text-xs font-medium text-gray-700">$18.2M</p>
                     </div>
                     <div class="text-right">
                       <p class="text-xs text-gray-400">Net IRR</p>
-                      <p class="text-xs font-medium text-gray-700">15.1%</p>
+                      <p class="text-xs font-medium text-gray-700">15.5%</p>
                     </div>
                     <div class="text-right">
                       <p class="text-xs text-gray-400">TVPI</p>
-                      <p class="text-xs font-medium text-gray-700">1.92x</p>
+                      <p class="text-xs font-medium text-gray-700">1.67x</p>
                     </div>
                     <svg class="w-4 h-4 text-gray-300 group-hover:text-[#7C3AED] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -895,7 +894,6 @@
                     <div>
                       <div class="flex items-center gap-2">
                         <p class="text-sm font-medium text-gray-900">No CF Stress Test</p>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500">Ad-hoc</span>
                       </div>
                       <p class="text-xs text-gray-500 mt-0.5">Last run: Jan 10, 2026</p>
                     </div>
@@ -1099,7 +1097,7 @@
                 <option value="Base" selected>Base</option>
                 <option value="Optimistic">Optimistic</option>
                 <option value="Conservative">Conservative</option>
-                <option value="Stress Test">Stress Test</option>
+                <option value="Deal A Early Sale">Deal A Early Sale</option>
               </select>
             </div>
             <p class="text-xs text-gray-400 mt-1.5 ml-6">This case applies to all <span id="investmentCountLabel">30</span> investments unless overridden below</p>
@@ -1119,7 +1117,7 @@
 
             <!-- Investment rows - Fund I example with 8 shown -->
             <div id="investmentList">
-              <div class="investment-row overridden" data-investment="deal-a">
+              <div class="investment-row" data-investment="deal-a">
                 <div class="flex items-center gap-4 flex-1">
                   <div class="w-[200px]">
                     <p class="text-sm font-medium text-gray-900">Deal A — Acme Corp</p>
@@ -1129,13 +1127,12 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-3">
-                  <span class="override-badge">Override</span>
-                  <select class="override-select overridden" onchange="handleOverrideChange(this, 'deal-a')">
-                    <option value="Base">Base</option>
+                  <span class="default-badge">Default</span>
+                  <select class="override-select" onchange="handleOverrideChange(this, 'deal-a')">
+                    <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Deal A Early Sale" selected>Deal A Early Sale</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1155,7 +1152,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1175,7 +1172,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1195,7 +1192,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1216,7 +1213,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1236,7 +1233,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1256,7 +1253,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1276,7 +1273,7 @@
                     <option value="Base" selected>Base</option>
                     <option value="Optimistic">Optimistic</option>
                     <option value="Conservative">Conservative</option>
-                    <option value="Stress Test">Stress Test</option>
+                    <option value="Deal A Early Sale">Deal A Early Sale</option>
                   </select>
                 </div>
               </div>
@@ -1461,7 +1458,7 @@
 
     // --- New Scenario Modal ---
     let currentDefaultCase = 'Base';
-    let overrides = { 'deal-a': 'Deal A Early Sale' };
+    let overrides = {};
 
     function openNewScenarioModal(fundName) {
       document.getElementById('modalFundName').textContent = fundName || 'Maybern Fund I';
